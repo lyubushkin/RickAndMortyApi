@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Alamofire
 
 class CharactersViewController: UITableViewController {
     
@@ -14,12 +15,17 @@ class CharactersViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.rowHeight = 150
-    }
-
+        self.alamofireGetButtonPressed()
+        
+        /*NetworkManager.shared.fetchCharacters(from: URLExamples.getCharacters.rawValue) { characters in
+            self.characters = characters
+            self.tableView.reloadData()
+    }*/
+}
     // MARK: - Table view data source
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        characters.count
+        override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+            characters.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -30,31 +36,34 @@ class CharactersViewController: UITableViewController {
         if let characterCell = cell as? CharacterCell {
             characterCell.configure(with: character)
         }
-        
+
         return cell
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-          tableView.deselectRow(at: indexPath, animated: true)
-      }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let indexPath = tableView.indexPathForSelectedRow {
+            guard let characterVC = segue.destination as? CharacterViewController else { return }
+            characterVC.character = characters[indexPath.row]
+        }
+    }
 }
 
 extension CharactersViewController {
-    func fetchCharacters() {
-        guard let url = URL(string: URLExamples.getCharacters.rawValue) else { return }
-        
-        URLSession.shared.dataTask(with: url) { (data, response, error) in
-            guard let data = data else { return }
-            
-            do {
-                self.characters = try JSONDecoder().decode([Character].self, from: data)
-                
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
+    func alamofireGetButtonPressed() {
+        AF.request(URLExamples.getCharacters.rawValue)
+            .validate()
+            .responseJSON { responseData in
+                switch responseData.result {
+                case .success(let value):
+                    self.characters = Character.getCharacters(from: value)
+
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
+
+                case .failure(let error):
+                    print(error)
                 }
-            } catch let error {
-                print(error.localizedDescription)
             }
-        }.resume()
     }
 }

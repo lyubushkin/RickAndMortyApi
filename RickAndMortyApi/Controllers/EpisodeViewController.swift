@@ -13,10 +13,7 @@ class EpisodeViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        //tableView.rowHeight = 200
-
         tableView.estimatedRowHeight = 150
-
     }
     // MARK: - Table view data source
 

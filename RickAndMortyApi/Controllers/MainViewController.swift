@@ -39,9 +39,10 @@ class MainViewController: UICollectionViewController {
     
     // MARK: Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
         if segue.identifier == "getCharacters" {
             guard let charactersVC = segue.destination as? CharactersViewController else { return }
-            charactersVC.fetchCharacters()
+           // charactersVC.characters = charactersToVC
         }
         if segue.identifier == "getLocations" {
             guard let locationsVC = segue.destination as? LocationViewController else { return }
